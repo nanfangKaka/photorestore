@@ -1,6 +1,6 @@
 # photorestore — Privacy Policy (GitHub Pages)
 
-Static privacy pages for **Old Photo Restore** / **老照片修复**.
+Static privacy pages for **LumiRestore**.
 
 | Page | URL |
 |------|-----|
