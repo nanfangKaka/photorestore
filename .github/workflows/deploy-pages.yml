@@ -26,5 +26,19 @@ jobs:
       - uses: actions/upload-pages-artifact@v3
         with:
           path: .
+      # Workaround: actions/deploy-pages@v4 can race the artifact metadata API
+      # (returns 0 artifacts even after upload). Wait until the artifact is visible.
+      - name: Wait for pages artifact to be visible
+        run: |
+          for i in 1 2 3 4 5 6; do
+            count=$(gh api repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts \
+              --jq '.artifacts | map(select(.name == "github-pages")) | length' 2>/dev/null || echo 0)
+            echo "artifact check $i: $count"
+            if [ "$count" -ge 1 ]; then exit 0; fi
+            sleep 10
+          done
+          echo "artifact still not visible; deploy-pages will retry internally"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - id: deployment
         uses: actions/deploy-pages@v4
